@@ -4,15 +4,39 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ForeignExchange2.Models;
 using Newtonsoft.Json;
+using Plugin.Connectivity;
 
 namespace ForeignExchange2
 {
     public class ApiService
     {
-        //public async Response CheckConnection()
-        //{
-            
-        //}
+        public async Task<Response> CheckConnection()
+        {
+            if (!CrossConnectivity.Current.IsConnected)
+            {
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = "Check your internet settings"
+                };
+            }
+
+            var response = await CrossConnectivity.Current.IsRemoteReachable("google.com");
+
+            if (!response)
+            {
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = "Check your internet connection"
+                };
+            }
+
+            return new Response
+            {
+                IsSuccess = true
+            };
+        }
 
         public async Task<Response> GetList<T>(string urlBase, string controller)
         {
